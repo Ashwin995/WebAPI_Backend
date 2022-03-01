@@ -7,7 +7,7 @@
     "start": "nodemon server.js",
     "start-server": "node server.js"
   },
-  "author": "Asbin",
+  "author": "Ashwin Tamang",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
