@@ -1,5 +1,5 @@
 {
   "mongoURI": "mongodb://127.0.0.1:27017/workmatedb",
   "SecretKey": "Secret",
-  "Timeout": 30000
+  "Timeout": "24h"
 }

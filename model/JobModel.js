@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const JobSchema = mongoose.Schema({
 
   employer: {
-    type:mongoose.Schema.Types.ObjectId,
-    ref:'user'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user'
   },
   job_image: {
     type: String,
@@ -33,7 +33,7 @@ const JobSchema = mongoose.Schema({
   employee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-    default:null
+    default: null
   },
   job_level: {
     type: String,

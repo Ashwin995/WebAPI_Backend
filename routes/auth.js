@@ -3,7 +3,10 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const { check, validationResult } = require("express-validator");
+const {
+  check,
+  validationResult
+} = require("express-validator");
 const UserModel = require("../model/UserModel");
 const auth = require("../middleware/auth");
 
@@ -13,10 +16,16 @@ router.get("/", auth, async (req, res) => {
     const user = await await UserModel.findById(req.user.id).select(
       "-password"
     );
-    res.status(200).json({ success: true, data: user });
+    res.status(200).json({
+      success: true,
+      data: user
+    });
     // console.log(user);
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
@@ -26,18 +35,25 @@ router.post(
   "/",
   [
     check("email", "Please enter valid email").isEmail(),
-    check("password", "Please enter password").exists(),
+    check("password", "Please enter password").not().isEmpty(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({
+        errors: errors.array()
+      });
     }
-    const { email, password } = req.body;
+    const {
+      email,
+      password
+    } = req.body;
     // console.log(req.body);
     try {
       //Search user with the provided email address
-      let user = await UserModel.findOne({ email });
+      let user = await UserModel.findOne({
+        email
+      });
       if (!user) {
         return res.status(400).json({
           success: false,
@@ -49,7 +65,10 @@ router.post(
       if (!checkPassword) {
         return res
           .status(400)
-          .json({ success: false, msg: "Enter valid password" });
+          .json({
+            success: false,
+            msg: "Enter valid password"
+          });
       }
 
       //Create jwt token
@@ -61,8 +80,9 @@ router.post(
 
       jwt.sign(
         payoload,
-        config.get("SecretKey"),
-        { expiresIn: config.get("Timeout") },
+        config.get("SecretKey"), {
+          expiresIn: config.get("Timeout")
+        },
         (err, token) => {
           if (err) throw err;
           res.status(200).json({
@@ -74,7 +94,10 @@ router.post(
         }
       );
     } catch (errors) {
-      res.status(500).json({ msg: "Internal server error", success: false });
+      res.status(500).json({
+        msg: "Internal server error",
+        success: false
+      });
       console.log(errors.message);
     }
   }

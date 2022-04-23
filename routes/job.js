@@ -1,54 +1,81 @@
 const express = require("express");
 const router = express.Router();
-const { check, validationResult } = require("express-validator");
+const {
+  check,
+  validationResult
+} = require("express-validator");
 const Mongoose = require("mongoose");
 const auth = require("../middleware/auth");
 const JobModel = require("../model/JobModel");
 const UserModel = require("../model/UserModel");
 
+
+
+
+
 //Get all jobs
 router.get("/", auth, async (req, res) => {
   try {
     let jobs = await JobModel.find();
-    res.status(200).json({ success: true, data: jobs });
+    res.status(200).json({
+      success: true,
+      data: jobs
+    });
     // console.log(jobs);
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
+
+
+
 
 
 //Get applied jobs per employee 
 router.get("/per", auth, async (req, res) => {
   try {
-    let jobs = await JobModel.find({employee:req.user.id});
-    res.status(200).json({ success: true, data: jobs });
+    let jobs = await JobModel.find({
+      employee: req.user.id
+    });
+    res.status(200).json({
+      success: true,
+      data: jobs
+    });
     // console.log(jobs);
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
 
 
-
-
-
-
-
-
 //Get job by applied employee
 router.put("/apply/:jid", auth, async (req, res) => {
+  console.log(req.params.jid);
   try {
     let jobs = await JobModel.findByIdAndUpdate(req.params.jid, {
       employee: req.user.id
-    }, { new: true });
+    }, {
+      new: true
+    });
 
-    res.status(200).json({ success: true});
+
+    res.status(200).json({
+      success: true
+    });
     // console.log(jobs);
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
@@ -59,12 +86,20 @@ router.put("/apply/:jid", auth, async (req, res) => {
 router.get("/per_user", auth, async (req, res) => {
   try {
     console.log(req.user.id);
-    let job = await JobModel.find({ employer: req.user.id });
-    res.status(200).json({ success: true, data: job });
-    // console.log(job);
+    let job = await JobModel.find({
+      employer: req.user.id
+    });
+    res.status(200).json({
+      success: true,
+      data: job
+    });
+    console.log(job);
 
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
@@ -76,19 +111,29 @@ router.post(
     auth,
     check("job_title", "Enter job title").not().isEmpty(),
     check("experience_required", "Enter experience required for job")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("company", "Company name required").not().isEmpty(),
     check("company_details", "Company details required").not().isEmpty(),
   ],
   async (req, res) => {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-      return res.status(400).json({ error: error.array() });
+      return res.status(400).json({
+        error: error.array()
+      });
     }
     JobModel.init();
-    const { job_title, experience_required, company, company_details, job_level, job_time, employer } =
-      req.body;
+    const {
+      job_title,
+      experience_required,
+      company,
+      company_details,
+      job_level,
+      job_time,
+      employer
+    } =
+    req.body;
     try {
       let job = new JobModel({
         job_title,
@@ -101,9 +146,15 @@ router.post(
       });
 
       await job.save();
-      res.status(200).json({ success: true, msg: "Job added" });
+      res.status(200).json({
+        success: true,
+        msg: "Job added"
+      });
     } catch (errors) {
-      res.status(500).json({ msg: "Internal server error", success: false });
+      res.status(500).json({
+        msg: "Internal server error",
+        success: false
+      });
       console.log(errors.message);
     }
   }
@@ -115,12 +166,20 @@ router.delete("/delete/:id", auth, async (req, res) => {
     let job = await JobModel.findById(req.params.id);
     console.log(job);
     if (!job) {
-      return res.status(404).json({ msg: "Job not found", success: false });
+      return res.status(404).json({
+        msg: "Job not found",
+        success: false
+      });
     }
     await JobModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ msg: "Job deleted from database" });
+    res.status(200).json({
+      msg: "Job deleted from database"
+    });
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
@@ -128,7 +187,14 @@ router.delete("/delete/:id", auth, async (req, res) => {
 //update job
 router.put("/update/:id", auth, async (req, res) => {
 
-  const { job_title, experience_required, company, company_details, job_level, job_time } = req.body;
+  const {
+    job_title,
+    experience_required,
+    company,
+    company_details,
+    job_level,
+    job_time
+  } = req.body;
   const newJob = {};
   if (job_title) newJob.job_title = job_title;
   if (experience_required) newJob.experience_required = experience_required;
@@ -142,20 +208,51 @@ router.put("/update/:id", auth, async (req, res) => {
     let job = await JobModel.findById(req.params.id);
 
     if (!job) {
-      return res.status(404).json({ msg: "Job not found", success: false });
+      return res.status(404).json({
+        msg: "Job not found",
+        success: false
+      });
     }
     console.log(job);
     console.log(req.params.id);
     let updatedJob = await JobModel.findByIdAndUpdate(
-      req.params.id,
-      { $set: newJob },
-      { new: true }
+      req.params.id, {
+        $set: newJob
+      }, {
+        new: true
+      }
     );
     res
       .status(200)
-      .json({ msg: "Job updated", success: true });
+      .json({
+        msg: "Job updated",
+        success: true
+      });
   } catch (errors) {
-    res.status(500).json({ msg: "Internal server error", success: false });
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
+    console.log(errors.message);
+  }
+});
+
+
+
+//By id
+router.get("/:id", auth, async (req, res) => {
+  try {
+    let jobs = await JobModel.findById(req.params.id);
+    res.status(200).json({
+      success: true,
+      data: jobs
+    });
+    // console.log(jobs);
+  } catch (errors) {
+    res.status(500).json({
+      msg: "Internal server error",
+      success: false
+    });
     console.log(errors.message);
   }
 });
